@@ -7,17 +7,14 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
 
-# ⚠️ Лучше хранить токен в переменной окружения:
-# Windows: set BOT_TOKEN=ваш_токен
-# Linux/Mac: export BOT_TOKEN=ваш_токен
+
 TOKEN = os.getenv("BOT_TOKEN", "8994766961:AAEYpW0jr2PcFX9d1IR583qvGn5l5Iktf54")
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
 
-# ─── Состояния ────────────────────────────────────────────────────────────────
-
+# статы
 class WorkoutState(StatesGroup):
     choosing_strength_level = State()
     choosing_cardio_level   = State()
@@ -31,8 +28,7 @@ class CalcState(StatesGroup):
     goal     = State()
 
 
-# ─── Клавиатуры ───────────────────────────────────────────────────────────────
-
+# интерфейс
 def kb(*rows):
     """Быстрое создание клавиатуры."""
     return ReplyKeyboardMarkup(
@@ -80,8 +76,7 @@ GOAL_MAP = {
     "📈 Набрать массу":   +300,
 }
 
-# ─── Программы тренировок ─────────────────────────────────────────────────────
-
+# программы тренировок
 STRENGTH = {
     "🟢 Легкий": (
         "💪 ЛЕГКАЯ СИЛОВАЯ ПРОГРАММА\n\n"
@@ -152,15 +147,14 @@ CARDIO = {
 }
 
 
-# ─── Хелперы ──────────────────────────────────────────────────────────────────
+# хелперы
 
 async def go_main(message: Message, state: FSMContext):
     await state.clear()
     await message.answer("Главное меню:", reply_markup=main_kb)
 
 
-# ─── Главное меню ─────────────────────────────────────────────────────────────
-
+# менюшка
 @dp.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
@@ -176,8 +170,7 @@ async def to_main(message: Message, state: FSMContext):
     await go_main(message, state)
 
 
-# ─── Силовые тренировки ───────────────────────────────────────────────────────
-
+# силовые
 @dp.message(F.text == "💪 Силовые тренировки")
 async def strength_menu(message: Message, state: FSMContext):
     await state.set_state(WorkoutState.choosing_strength_level)
@@ -189,8 +182,7 @@ async def strength_program(message: Message, state: FSMContext):
     await message.answer(STRENGTH[message.text], reply_markup=main_kb)
 
 
-# ─── Кардио тренировки ────────────────────────────────────────────────────────
-
+# кардио
 @dp.message(F.text == "🏃 Кардио тренировки")
 async def cardio_menu(message: Message, state: FSMContext):
     await state.set_state(WorkoutState.choosing_cardio_level)
@@ -202,8 +194,7 @@ async def cardio_program(message: Message, state: FSMContext):
     await message.answer(CARDIO[message.text], reply_markup=main_kb)
 
 
-# ─── Калькулятор калорий ──────────────────────────────────────────────────────
-
+# калькулятор калорий
 @dp.message(F.text == "🔥 Калькулятор калорий")
 async def calc_start(message: Message, state: FSMContext):
     await state.set_state(CalcState.gender)
@@ -292,7 +283,7 @@ async def get_goal(message: Message, state: FSMContext):
         reply_markup=main_kb
     )
 
-# Обработка некорректного ввода на любом шаге калькулятора
+# ловилка ошибок
 @dp.message(CalcState.gender)
 async def wrong_gender(message: Message):
     await message.answer("⚠️ Пожалуйста, выберите пол кнопкой выше.")
@@ -306,8 +297,7 @@ async def wrong_goal(message: Message):
     await message.answer("⚠️ Пожалуйста, выберите цель кнопкой выше.")
 
 
-# ─── Запуск ───────────────────────────────────────────────────────────────────
-
+# запуск
 async def main():
     print("✅ Bot started...")
     await dp.start_polling(bot)
