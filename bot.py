@@ -19,7 +19,6 @@ TOKEN = os.getenv("BOT_TOKEN")
 
 #декораторы
 def log_handler(func):
-    """Декоратор: логирует каждый вызов хэндлера."""
     @functools.wraps(func)
     async def wrapper(message: Message, *args, **kwargs):
         logger.info(
@@ -33,7 +32,6 @@ def log_handler(func):
 
 
 def validate_number(min_val: float, max_val: float, label: str):
-    """Декоратор-фабрика: проверяет что текст сообщения — число в диапазоне."""
     def decorator(func):
         @functools.wraps(func)
         async def wrapper(message: Message, state: FSMContext, *args, **kwargs):
@@ -64,8 +62,6 @@ class Exercise:
 
 
 class WorkoutIterator:
-    """Итератор: перебирает упражнения программы тренировки одно за другим."""
-
     def __init__(self, exercises: list):
         self._exercises = exercises
         self._index = 0
@@ -89,7 +85,6 @@ class WorkoutIterator:
 #генераторы
 
 def nutrition_tips_generator() -> Generator[str, None, None]:
-    """Генератор: бесконечно выдаёт советы по питанию по кругу."""
     tips = [
         "💧 Пейте 30 мл воды на каждый кг веса в день.",
         "🥗 Ешьте овощи с каждым приёмом пищи.",
@@ -108,14 +103,12 @@ def nutrition_tips_generator() -> Generator[str, None, None]:
 def macro_breakdown_generator(
     calories: float, protein_g: float, fat_g: float, carbs_g: float
 ) -> Generator[str, None, None]:
-    """Генератор: пошагово выдаёт строки отчёта о макронутриентах."""
     yield f"🥩 Белки:    {round(protein_g)} г  ({round(protein_g * 4)} ккал)"
     yield f"🧈 Жиры:     {round(fat_g)} г  ({round(fat_g * 9)} ккал)"
     yield f"🍞 Углеводы: {round(carbs_g)} г  ({round(carbs_g * 4)} ккал)"
 
 @dataclass
 class WorkoutProgram:
-    """Программа тренировки: название, тип, уровень, список упражнений."""
     title: str
     kind: str
     level: str
@@ -140,7 +133,7 @@ class WorkoutProgram:
 
 @dataclass
 class UserProfile:
-    """Профиль пользователя для калькулятора калорий."""
+    # профиль юзера
     gender: str
     age: int
     weight: float
@@ -149,7 +142,6 @@ class UserProfile:
     goal_delta: int
 
     def bmr(self) -> float:
-        """Базовый обмен по формуле Миффлина–Сен-Жеора."""
         base = 10 * self.weight + 6.25 * self.height - 5 * self.age
         return base + 5 if "Мужчина" in self.gender else base - 161
 
@@ -160,7 +152,6 @@ class UserProfile:
         return self.tdee() + self.goal_delta
 
     def macros(self) -> tuple:
-        """Возвращает (белки г, жиры г, углеводы г)."""
         cal = self.target_calories()
         protein = self.weight * 2.0
         fat = self.weight * 1.0
@@ -170,8 +161,6 @@ class UserProfile:
 #каталог
 
 class WorkoutCatalog:
-    """Хранит все программы тренировок и выдаёт их по типу и уровню."""
-
     def __init__(self):
         self._programs: dict = {}
         self._fill()
@@ -263,8 +252,6 @@ class WorkoutCatalog:
         ))
 
 class FitnessBot:
-    """Главный класс: инициализирует бота, регистрирует хэндлеры."""
-
     ACTIVITY_MAP: dict = {
         "🛋️ Минимальная":  1.2,
         "🚶 Низкая":        1.375,
